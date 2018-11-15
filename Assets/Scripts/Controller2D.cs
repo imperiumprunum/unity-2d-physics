@@ -39,8 +39,16 @@ public class Controller2D : MonoBehaviour {
     {
         
         UpdateRaycastOrigins();
-            VerticalCollisions(ref velocity);
+            
+        if(velocity.x != 0)
+        {
+            HorizontalCollisions(ref velocity);
+        }
         
+        if(velocity.y != 0)
+        {
+            VerticalCollisions(ref velocity);
+        }
 
 
         transform.Translate(velocity);
@@ -68,8 +76,8 @@ public class Controller2D : MonoBehaviour {
 
             // Drawing rays
             // raycast(x,y) + right translation * space_between * rays count ; -2 stands for lenght (and down dir)
-            Debug.DrawRay(raycastOrigins.bottomLeft + Vector2.right * vecticalRaySpacing * i, Vector2.up * -2, Color.red);
-            //Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
+            //Debug.DrawRay(raycastOrigins.bottomLeft + Vector2.right * vecticalRaySpacing * i, Vector2.up * -2, Color.red);
+            Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
 
             // Debug.Log(velocity.y);
             if (hit)
@@ -90,7 +98,28 @@ public class Controller2D : MonoBehaviour {
 
     }
 
+    //Horizontal collider
 
+    void HorizontalCollisions(ref Vector3 velocity)
+    {
+        float directionX = Mathf.Sign(velocity.x);
+        float rayLength = Mathf.Abs(velocity.x) + skinWidth;
+
+        for (int i = 0; i < HorizontalRayCount; i++)
+        {
+            Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
+            rayOrigin += Vector2.up * (horizontalRaySpacing * i);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
+
+            Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.green);
+
+            if (hit)
+            {
+                velocity.x = (hit.distance - skinWidth) * directionX;
+                rayLength = hit.distance;
+            }
+        }
+    }
 
     //Raycast methods
 

@@ -21,9 +21,9 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        //Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        //velocity.x = input.x * moveSpeed;
+        velocity.x = input.x * moveSpeed;
         //  v = vo + at
 
         velocity.y += gravity * Time.deltaTime;
