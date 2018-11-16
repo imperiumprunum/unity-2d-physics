@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent (typeof (BoxCollider2D))]
+[RequireComponent(typeof(BoxCollider2D))]
 
 public class Controller2D : MonoBehaviour {
 
     const float skinWidth = .05f;
 
- 
+
 
     public LayerMask collisionMask;
 
     BoxCollider2D colider;
     RaycastOrigins raycastOrigins;
+    public CollisionInfo collisions;
 
     public int HorizontalRayCount = 4;
     public int VerticalRayCount = 4;
@@ -22,14 +23,14 @@ public class Controller2D : MonoBehaviour {
     public float vecticalRaySpacing;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
         //Fetch the Collider from the GameObject
         colider = GetComponent<BoxCollider2D>();
         calcRaySpacing();
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update() {
 
     }
 
@@ -37,28 +38,29 @@ public class Controller2D : MonoBehaviour {
 
     public void Move(Vector3 velocity)
     {
-        
+
         UpdateRaycastOrigins();
-            
-        if(velocity.x != 0)
+        collisions.Reset();
+
+        if (velocity.x != 0)
         {
             HorizontalCollisions(ref velocity);
         }
-        
-        if(velocity.y != 0)
+
+        if (velocity.y != 0)
         {
             VerticalCollisions(ref velocity);
         }
 
 
         transform.Translate(velocity);
-       
+
     }
 
 
     //Colisions vectical
 
-    void VerticalCollisions(ref Vector3 velocity)
+   void VerticalCollisions(ref Vector3 velocity)
     {
         // Velocity direction +/- 1
         float directionY = Mathf.Sign(velocity.y);
@@ -70,7 +72,7 @@ public class Controller2D : MonoBehaviour {
             Vector2 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
 
             // vector2.right only to make vector addition, velocity.x ?
-            rayOrigin += Vector2.right * (vecticalRaySpacing * i + velocity.x); 
+            rayOrigin += Vector2.right * (vecticalRaySpacing * i + velocity.x);
 
             RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, collisionMask);
 
@@ -90,6 +92,10 @@ public class Controller2D : MonoBehaviour {
                 //velocity.y = 0;
 
                 rayLength = hit.distance;
+
+                //   set true CollisionsInfo flag
+                collisions.above = directionY == 1;
+                collisions.below = directionY == -1;
 
             }
 
@@ -117,6 +123,9 @@ public class Controller2D : MonoBehaviour {
             {
                 velocity.x = (hit.distance - skinWidth) * directionX;
                 rayLength = hit.distance;
+
+                collisions.right = directionX == 1;
+                collisions.left = directionX == -1;
             }
         }
     }
@@ -153,5 +162,16 @@ public class Controller2D : MonoBehaviour {
     {
         public Vector2 topLeft, topRight;
         public Vector2 bottomLeft, bottomRight;
+    }
+
+    public struct CollisionInfo{
+        public bool above, below;
+        public bool left, right;
+
+        public void Reset()
+        {
+            above = below = false;
+            left = right = false;
+        }
     }
 }
